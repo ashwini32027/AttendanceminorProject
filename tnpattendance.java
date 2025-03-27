@@ -1,18 +1,17 @@
 import java.util.Scanner;
-
 class tnpattendance {
     static final int total_noofclass = 50;
     //abhi total class final rakha ha no change 
-    static String[] names = {"ASHWINI KUMAR","NIKHIL KUMAR","ANISH KUMAR","RAGHUNANDAN KUMAR"};
+    static String[] names = {"ABHISHEK KUMAR","ADITYA AGNIHOTRI","ANKESH PANDEY","ANKIT SING","ASHWINI KUMAR","DISA WANJARE","HIMANSHU KUMAR","KAJAL KUMARI","NIKHIL PARMAR","RAGHUNANDAN KUMAR"};
     //demo total student
     static String[] roll_ofstu = {
-            "0111CS221009", "0111CS221012", "0111CS221023", "0111CS221032"};
+            "0191CS233D01","0191CS233D02","0191CS233D03","0191CS233D04","0191CS233D05","0191CS233D06","0191CS233D07","0191CS233D08","0191CS233D09","0191CS233D10"};
             //demo roll
     static String[] categories = {
-        "Japanes", "Japanes", "Japanes", "Japanes"};
+        "Japanes", "Japanes", "Japanes", "Japanes","Japanes","Japanes","Japanes","Japanes","Japanes","Japanes"};
     static int[] attendance = new int[names.length];
 
-    // Define login credentials TO secure web
+    // login id pass predefine check
     static String username = "admin";
     static String password = "12345";
 
@@ -23,13 +22,14 @@ class tnpattendance {
         System.out.println("===||WELCOME TO OUR SOFTWARE PLEASE LOGIN ||TECHNOCRATES INTITUTE TECHNOLOGY BHOPAL===");
         System.out.println("If you Dont Have Username and Password Please contact mail ashwini32027@gmai.com");
         System.out.println("Enter username: ");
-        String inputUsername = sc.nextLine();
+        String inputUsername = sc.next();
         System.out.println("Enter password: ");
-        String inputPassword = sc.nextLine();
+        String inputPassword = sc.next();
 
         if (!inputUsername.equals(username) || !inputPassword.equals(password)) {
             System.out.println("Invalid username or password. Exiting...");
             System.exit(0);
+            //if wrong exit fast that why we use .exit
         }
 
         while (true) {
@@ -73,13 +73,25 @@ class tnpattendance {
     static void markAttendance(Scanner sc) {
         System.out.println("\nMark Attendance for Today Class of Tnp:");
         for (int i = 0; i < names.length; i++) {
+            String present;
+            while(true)
+            {
             System.out.print("In Today Class Does  :" + names[i] + " (Roll No:" + roll_ofstu[i] + ") present? (y/n): ");
-            String present = sc.next();
+            present = sc.next().toLowerCase().trim();
+            if(present.equals("y") || present.equals("n")) break;
+            System.out.println("Please enter a valid input again use only present? (y/n) so Enter Again ");
+            }
             if (present.equalsIgnoreCase("y")) {
                 attendance[i]++;
             }
         }
-        System.out.println("All attendance Mark Succesfully");
+        //extra space 
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println("_====="+"All attendance Mark Succesfully"+"=====");
     }
 
     // student ka attendance report dekhne par switch case yaha return karega
@@ -136,8 +148,9 @@ class tnpattendance {
 
     // search student via roll number kyuki roll unique ha
     static void searchStudentAttendance(Scanner sc) {
+
         System.out.print("\nEnter roll number to search: ");
-        String searchRoll = sc.next();
+        String searchRoll = sc.next().toUpperCase();
         for (int i = 0; i < names.length; i++) {
             if (roll_ofstu[i].equals(searchRoll)) {
                 System.out.println("Student Found: " + names[i] + " (Roll No: " + roll_ofstu[i] + ")");
@@ -149,7 +162,10 @@ class tnpattendance {
             }
         }
 
-        // Agar loop complete ho gaya, toh student nahi mila
+        // Agar loop complete ho gaya, fir toh student nahi mila toh
         System.out.println("No student found with roll number: " + searchRoll);
-    }
+
 }
+}
+
+
