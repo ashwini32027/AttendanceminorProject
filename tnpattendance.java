@@ -1,171 +1,374 @@
-import java.util.Scanner;
-class tnpattendance {
-    static final int total_noofclass = 50;
-    //abhi total class final rakha ha no change 
-    static String[] names = {"ABHISHEK KUMAR","ADITYA AGNIHOTRI","ANKESH PANDEY","ANKIT SING","ASHWINI KUMAR","DISA WANJARE","HIMANSHU KUMAR","KAJAL KUMARI","NIKHIL PARMAR","RAGHUNANDAN KUMAR"};
-    //demo total student
-    static String[] roll_ofstu = {
-            "0191CS233D01","0191CS233D02","0191CS233D03","0191CS233D04","0191CS233D05","0191CS233D06","0191CS233D07","0191CS233D08","0191CS233D09","0191CS233D10"};
-            //demo roll
-    static String[] categories = {
-        "Japanes", "Japanes", "Japanes", "Japanes","Japanes","Japanes","Japanes","Japanes","Japanes","Japanes"};
-    static int[] attendance = new int[names.length];
+import java.util.*;
+import java.sql.*;
 
-    // login id pass predefine check
-    static String username = "admin";
-    static String password = "12345";
+public class TnpApp {
+    private final static String url = "jdbc:mysql://127.0.0.1:3306/tnp";
+    private final static String username = "root";
+    private final static String password = "773939";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException {
         Scanner sc = new Scanner(System.in);
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("Driver Loaded Successfully");
+            Connection connection = DriverManager.getConnection(url, username, password);
+            markattendance mark = new markattendance(connection, sc);
+            viewAttendancereport view = new viewAttendancereport(connection);
+            viewsortedstudentlist sort = new viewsortedstudentlist(connection);
+            searchstudentattendace search = new searchstudentattendace(connection, sc);
+            addstudent add = new addstudent(connection, sc);
+            removestudent remove = new removestudent(connection, sc);
 
-        // Login check
-        System.out.println("===||WELCOME TO OUR SOFTWARE PLEASE LOGIN ||TECHNOCRATES INTITUTE TECHNOLOGY BHOPAL===");
-        System.out.println("If you Dont Have Username and Password Please contact mail ashwini32027@gmai.com");
-        System.out.println("Enter username: ");
-        String inputUsername = sc.next();
-        System.out.println("Enter password: ");
-        String inputPassword = sc.next();
+            while (true) {
+                System.out.println("\n===== Student Attendance System Design By Ashwini Kumar B-tech(2023-26) =====");
+                System.out.println("1. Mark Attendance");
+                System.out.println("2. View Attendance Report");
+                System.out.println("3. View Sorted Student List");
+                System.out.println("4. Search Student Attendance by Roll No");
+                System.out.println("5. Add New Student");
+                System.out.println("6. Remove Student");
+                System.out.println("7. Exit");
+                System.out.print("Enter your choice: ");
+                if (!sc.hasNextInt()) {
+                    System.out.println(" Please enter a valid number.");
+                    sc.next(); // consume wrong input
+                    continue;
+                }
+                int choice = sc.nextInt();
 
-        if (!inputUsername.equals(username) || !inputPassword.equals(password)) {
-            System.out.println("Invalid username or password. Exiting...");
-            System.exit(0);
-            //if wrong exit fast that why we use .exit
-        }
+                switch (choice) {
 
-        while (true) {
-            System.out.println("\n===== TNP Attendance Management Software By Ashwini Kumar(batch 2023-26) =====");
-            System.out.println("1. Mark Attendance");
-            System.out.println("2. View Attendance Report");
-            System.out.println("3. View Attendance Percentage");
-            System.out.println("4. Sort Student List by Name");
-            System.out.println("5. Search Attendance for a Student");
-            System.out.println("6. Exit");
-            System.out.print("Enter your choice: ");
-            int choice = sc.nextInt();
-            switch (choice) {
-                case 1:
-                    markAttendance(sc);
-                    break;
-                case 2:
-                    viewAttendanceReport();
-                    break;
-                case 3:
-                    viewAttendancePercentage();
-                    break;
-                case 4:
-                    sortStudentListMakeReport();
-                    break;
-                case 5:
-                    searchStudentAttendance(sc);
-                    break;
-                case 6:
-                    System.out.println("Exiting the program. Thank you!");
-                    System.exit(0);
-                default:
-                    System.out.println("Invalid choice! Please try again.");
-                    System.exit(0);
-                    break;
-            }
-        }
-    }
-
-    // user sabse pehel attendance mark karega fir attendance ++ hoajega
-    static void markAttendance(Scanner sc) {
-        System.out.println("\nMark Attendance for Today Class of Tnp:");
-        for (int i = 0; i < names.length; i++) {
-            String present;
-            while(true)
-            {
-            System.out.print("In Today Class Does  :" + names[i] + " (Roll No:" + roll_ofstu[i] + ") present? (y/n): ");
-            present = sc.next().toLowerCase().trim();
-            if(present.equals("y") || present.equals("n")) break;
-            System.out.println("Please enter a valid input again use only present? (y/n) so Enter Again ");
-            }
-            if (present.equalsIgnoreCase("y")) {
-                attendance[i]++;
-            }
-        }
-        //extra space 
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println("_====="+"All attendance Mark Succesfully"+"=====");
-    }
-
-    // student ka attendance report dekhne par switch case yaha return karega
-    static void viewAttendanceReport() {
-        System.out.println("\n======== Attendance report of all Tnp Student =======");
-        for (int i = 0; i < names.length; i++) {
-            System.out.println("Record of Student " + names[i] + "(Roll No:" + roll_ofstu[i] + ") | Categories "
-                    + categories[i] + " | Attendance: " + attendance[i] + "/" + total_noofclass);
-        }
-    }
-
-    // attendance ka percentage nikalana
-    static void viewAttendancePercentage() {
-        System.out.println("\n===== Attendance Percentage =====");
-        for (int i = 0; i < names.length; i++) {
-            double percentage = (attendance[i] * 100.0) / total_noofclass;
-            System.out
-                    .println(names[i] + "(Roll No:" + roll_ofstu[i] + " | Attendance Percentage: " + percentage + "%");
-        }
-    }
-
-    // kunal kuswaha bubble sort logic
-    static void sortStudentListMakeReport() {
-        // Bubble sort for sorting by name
-        for (int i = 0; i < names.length - 1; i++) {
-            for (int j = 0; j < names.length - i - 1; j++) {
-                if (names[j].compareTo(names[j + 1]) > 0) {
-                    // Swap names
-                    String tempName = names[j];
-                    names[j] = names[j + 1];
-                    names[j + 1] = tempName;
-                    // Swap roll numbers
-                    String tempRoll = roll_ofstu[j];
-                    roll_ofstu[j] = roll_ofstu[j + 1];
-                    roll_ofstu[j + 1] = tempRoll;
-                    // Swap categories
-                    String tempCategory = categories[j];
-                    categories[j] = categories[j + 1];
-                    categories[j + 1] = tempCategory;
-                    // Swap attendance counts
-                    int tempAttendance = attendance[j];
-                    attendance[j] = attendance[j + 1];
-                    attendance[j + 1] = tempAttendance;
+                    case 1: mark.marks(); break;
+                    case 2: view.report(); break;
+                    case 3: sort.sorted(); break;
+                    case 4: search.search(); break;
+                    case 5: add.add(); break;
+                    case 6: remove.delete(); break;
+                    case 7:
+                        System.out.println("Exiting system. Goodbye!");
+                        sc.close();
+                        System.exit(0);
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
                 }
             }
-        }
-        System.out.println("\nStudent list sorted by Name:");
-        for (int i = 0; i < names.length; i++) {
-           double ok= (attendance[i] * 100.0) / total_noofclass;
-            System.out.println("| |"+ names[i] + " (Roll No: " + roll_ofstu[i] +" | |Present day"+attendance[i]+""+"|Percentage |"+ok);
 
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+}
+
+class markattendance
+{
+private final Connection connection;
+private final Scanner sc;
+public markattendance(Connection connection,Scanner sc)
+{
+    this.connection=connection;
+    this.sc=sc;
+}
+void marks()
+{
+
+    System.out.println("Do you want to mark attedance type Yes/No");
+    String value=sc.next().trim().toLowerCase();
+    if(value.equals("no") || value.equals("n"))
+    {
+        System.out.println("Existing from System There was No class Today");
+        return;
+    }
+    else {
+        stu();
+    }
+}
+void stu()
+{
+     final String query="Update  student set total_class=total_class+1";
+     try {
+         PreparedStatement preparedStatement = connection.prepareStatement(query);
+         int row=preparedStatement.executeUpdate();
+         if(row>0)
+         {
+             System.out.println("Total class value increase");
+         }
+         else
+         {
+             System.out.println("Sorry Something went wrong Existing From System");
+           return;
+         }
+     } catch (SQLException e) {
+         throw new RuntimeException(e);
+     }
+     final String fetch="Select roll_no,stu_name from student";
+     final String updateq="update student set attendance_count=attendance_count+1 where roll_no=?";
+     try
+     {
+         Statement statement = connection.createStatement();
+         ResultSet resultSet = statement.executeQuery(fetch);
+         PreparedStatement preparedStatement = connection.prepareStatement(updateq);
+         while (resultSet.next())
+         {
+             String roll = resultSet.getString("roll_no");
+             String name=resultSet.getString("stu_name");
+             String val;
+             while (true) {
+                 System.out.println("In today Class Does roll " + roll + "name " + name + "present? (Yes/No or Y/N):");
+                 val = sc.next().trim().toLowerCase();
+                 if (val.equals("yes") || val.equals("y") || val.equals("no") || val.equals("n")) {
+                     break; // valid input
+                 } else {
+                     System.out.println(" Invalid input! Please type only Yes/Y or No/N.");
+                 }
+             }
+             if (val.equals("yes") || val.equals("y"))
+             {
+                 preparedStatement.setString(1,roll);
+                 int update=preparedStatement.executeUpdate();
+                 if(update>0)
+                 {
+                     System.out.println("Attendance marked succefully for " +roll);
+                 }
+             }
+             else
+             {
+                 System.out.println("marked Absent for "+roll);
+             }
+
+
+         }
+         preparedStatement.close();
+         statement.close();
+         resultSet.close();
+     }
+     catch (SQLException e)
+     {
+         System.out.println("Sql Error response " +e.getMessage());
+     }
+}
+
+}
+class viewAttendancereport
+{
+    private final Connection connection;
+
+    public viewAttendancereport(Connection connection) {
+        this.connection = connection;
+    }
+
+    void  report()
+    {
+       final String query ="Select*from student";
+        try
+        {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                String name = resultSet.getString("stu_name");
+                String roll = resultSet.getString("roll_no");
+                int attended = resultSet.getInt("attendance_count");
+                int total = resultSet.getInt("total_class");
+
+                double percentage = (total == 0) ? 0.0 : (attended * 100.0) / total;
+
+                System.out.println("========================");
+                System.out.printf("%-17s: %s\n", "Name", name);
+                System.out.printf("%-17s: %s\n", "Roll No", roll);
+                System.out.printf("%-17s: %d/%d\n", "Classes Attended", attended, total);
+                System.out.printf("%-17s: %.2f%%\n", "Attendance %", percentage);
+                System.out.println("========================");
+            }
+
+
+        }
+        catch(SQLException e)
+        {
+            throw new RuntimeException(e.getMessage());
         }
     }
 
-    // search student via roll number kyuki roll unique ha
-    static void searchStudentAttendance(Scanner sc) {
 
-        System.out.print("\nEnter roll number to search: ");
-        String searchRoll = sc.next().toUpperCase();
-        for (int i = 0; i < names.length; i++) {
-            if (roll_ofstu[i].equals(searchRoll)) {
-                System.out.println("Student Found: " + names[i] + " (Roll No: " + roll_ofstu[i] + ")");
-                System.out.println("Category: " + categories[i]);
-                System.out.println("Attendance: " + attendance[i] + "/" + total_noofclass);
-                double percentage = (attendance[i] * 100.0) / total_noofclass;
-                System.out.println("Attendance Percentage: " + percentage + "%");
-                return; // Directly exit function after finding the student
+
+}
+
+class viewsortedstudentlist
+{
+    private final Connection connection;
+  public  viewsortedstudentlist(Connection connection)
+  {
+      this.connection=connection;
+  }
+
+  void sorted()
+  {
+      final String query="SELECT * FROM student ORDER BY (attendance_count * 100.0 / total_class) DESC";
+try {
+    Statement statement = connection.createStatement();
+    ResultSet resultSet = statement.executeQuery(query);
+    while (resultSet.next()) {
+        String name = resultSet.getString("stu_name");
+        String roll = resultSet.getString("roll_no");
+        int Totalclass = resultSet.getInt("attendance_count");
+        int per = resultSet.getInt("total_class");
+        double percentage = (per == 0) ? 0.0 : (Totalclass * 100.0) / per;
+        System.out.println("========================");
+        System.out.println("Name         : " + name);
+        System.out.println("Roll No      : " + roll);
+        System.out.println("Classes Attended : " + Totalclass);
+        System.out.printf("Percentage   : %.2f%%\n", percentage);
+        System.out.println("========================");
+
+    }
+}
+catch (SQLException e)
+{
+    throw new RuntimeException(e.getMessage());
+}
+  }
+
+
+}
+class searchstudentattendace
+{
+private final Connection connection;
+private final  Scanner sc;
+public searchstudentattendace(Connection connection,Scanner sc)
+{
+    this.connection=connection;
+    this.sc=sc;
+}
+void search()
+{
+    final String query ="Select stu_name,roll_no,attendance_count,total_class from student where roll_no=? ";
+    try {
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        System.out.println("Please Enter Roll Number of Student");
+        String rolll=sc.next();
+        preparedStatement.setString(1,rolll);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (!resultSet.isBeforeFirst()) {
+            System.out.println(" No student found with Roll No: " + rolll);
+            return;
+        }
+        while (resultSet.next())
+        {
+            String name = resultSet.getString("stu_name");
+            String roll = resultSet.getString("roll_no");
+            int Totalclass = resultSet.getInt("attendance_count");
+            int per = resultSet.getInt("total_class");
+            double percentage = (per == 0) ? 0.0 : (Totalclass * 100.0) / per;
+            System.out.println("========================");
+            System.out.println("Name         : " + name);
+            System.out.println("Roll No      : " + roll);
+            System.out.println("Classes Attended : " + Totalclass);
+            System.out.printf("Percentage   : %.2f%%\n", percentage);
+            System.out.println("========================");
+        }
+    }
+    catch (SQLException e)
+    {
+        System.out.println("SQL Error: " + e.getMessage());
+
+    }
+}
+
+
+
+}
+class addstudent
+{
+    private final Connection connection;
+    private final Scanner sc;
+    public addstudent(Connection connection,Scanner sc)
+    {
+        this.connection=connection;
+        this.sc=sc;
+    }
+    void add()
+    {
+        String totalclass = "SELECT MAX(total_class) AS total_class FROM student";
+        System.out.println("Please Enter carefully Student Details");
+        System.out.println("Please Enter Student name");
+        String name=sc.next().trim();
+        System.out.println("Please Enter Roll Number of Student");
+        String roll=sc.next().trim();
+        System.out.println("Please Enter attendance count if not Join anY Class Enter 0");
+        int attendace=sc.nextInt();
+
+        try {
+             Statement statement=connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(totalclass);
+             int total=0;
+             if(resultSet.next())
+             {
+                 total=resultSet.getInt("total_class");
+             }
+             resultSet.close();
+             statement.close();
+            String query = "Insert into student(roll_no,stu_name,attendance_count,total_class) Values(?,?,?,?)";
+
+            PreparedStatement preparedStatement =connection.prepareStatement(query);
+            preparedStatement.setString(1,roll);
+            preparedStatement.setString(2,name);
+            preparedStatement.setInt(3,attendace);
+            preparedStatement.setInt(4,total);
+            int row=preparedStatement.executeUpdate();
+            if(row>0)
+            {
+                System.out.println("Student Succesfully Added in Database " +name +" "+roll);
             }
+            else
+            {
+                System.out.println("Failed to Add Student in DataBase");
+            }
+
+        }
+        catch (SQLException e)
+        {
+            System.out.println("Sql error " +e.getMessage());
         }
 
-        // Agar loop complete ho gaya, fir toh student nahi mila toh
-        System.out.println("No student found with roll number: " + searchRoll);
+
+    }
 
 }
+class removestudent
+{
+    private final Connection connection;
+    private final Scanner sc;
+    public  removestudent(Connection connection,Scanner sc)
+    {
+        this.connection=connection;
+        this.sc=sc;
+    }
+    void delete()
+    {try {
+
+
+        System.out.println("Please Enter roll number of Student you want to delete");
+        String roll = sc.next().trim().toUpperCase();
+        String query = "delete from student where roll_no=?";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setString(1,roll);
+        int row= preparedStatement.executeUpdate();
+        if (row>0)
+        {
+            System.out.println("Succefully Deleted Data from Database");
+        }
+        else
+        {
+            System.out.println("Sorry Something went Wrong Data not delete");
+        }
+    }
+    catch (SQLException e)
+    {
+        System.out.println("Sql error " +e.getMessage());
+    }
+    }
+
+
 }
+
 
 
